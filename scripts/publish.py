@@ -180,8 +180,38 @@ def latest_version(versions: list[str]) -> str:
     return max(versions, key=key)
 
 
-def regenerate_index() -> None:
-    """Rebuild v1/index.json from every v1/modules/<uuid>/versions/*/."""
+def _write_if_changed(path: Path, new_doc: dict, drift_keys: tuple[str, ...] = ()) -> bool:
+    """Write `new_doc` to `path` only if it differs from the file currently
+    on disk after stripping `drift_keys` (fields like `generated_at` that
+    would otherwise spawn a spurious bot commit on every workflow run).
+    Returns True if the file was written.
+    """
+    current: dict | None = None
+    if path.exists():
+        try:
+            with path.open("r", encoding="utf-8") as f:
+                current = json.load(f)
+        except json.JSONDecodeError:
+            current = None
+
+    def strip(d: dict | None) -> dict | None:
+        if d is None:
+            return None
+        return {k: v for k, v in d.items() if k not in drift_keys}
+
+    if strip(current) == strip(new_doc):
+        return False
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(new_doc, f, indent=2, sort_keys=True)
+        f.write("\n")
+    return True
+
+
+def regenerate_index() -> bool:
+    """Rebuild v1/index.json from every v1/modules/<uuid>/versions/*/.
+    Returns True if the file was written, False if the content was
+    byte-equivalent (modulo `generated_at`)."""
     modules: list[dict] = []
     modules_dir = repo_root() / "v1" / "modules"
     if modules_dir.exists():
@@ -213,14 +243,16 @@ def regenerate_index() -> None:
         "modules": modules,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
-    index_path = repo_root() / "v1" / "index.json"
-    with index_path.open("w", encoding="utf-8") as f:
-        json.dump(doc, f, indent=2, sort_keys=True)
-        f.write("\n")
+    return _write_if_changed(
+        repo_root() / "v1" / "index.json",
+        doc,
+        drift_keys=("generated_at",),
+    )
 
 
-def regenerate_trust() -> None:
-    """Build v1/trust.json from every publishers/*.json."""
+def regenerate_trust() -> bool:
+    """Build v1/trust.json from every publishers/*.json. Returns True if
+    the file was written."""
     keys: list[dict] = []
     pubs = repo_root() / "publishers"
     if pubs.exists():
@@ -231,10 +263,7 @@ def regenerate_trust() -> None:
                 {"key_id": doc["key_id"], "ed25519_pub": doc["ed25519_pub"]}
             )
 
-    trust_path = repo_root() / "v1" / "trust.json"
-    with trust_path.open("w", encoding="utf-8") as f:
-        json.dump({"keys": keys}, f, indent=2, sort_keys=True)
-        f.write("\n")
+    return _write_if_changed(repo_root() / "v1" / "trust.json", {"keys": keys})
 
 
 def main() -> None:
