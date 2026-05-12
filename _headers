@@ -1,0 +1,31 @@
+# Cloudflare Pages headers. Cache aggressively on per-version artefacts
+# (immutable once published: any change ships as a new version directory)
+# and lightly on the index (changes on every publish).
+#
+# CORS is opened wide so any setup helper / web dashboard / curl can read
+# without preflight grief. The contents are public package metadata; there
+# is nothing to gate.
+
+/v1/index
+  Cache-Control: public, max-age=60, must-revalidate
+  Access-Control-Allow-Origin: *
+
+/v1/trust.json
+  Cache-Control: public, max-age=300, must-revalidate
+  Access-Control-Allow-Origin: *
+
+/v1/modules/*/manifest
+  Cache-Control: public, max-age=60, must-revalidate
+  Access-Control-Allow-Origin: *
+
+/v1/modules/*/versions/*/manifest
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/v1/modules/*/versions/*/payload
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/v1/modules/*/versions/*/signature
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *

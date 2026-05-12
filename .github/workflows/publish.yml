@@ -1,0 +1,121 @@
+name: Publish
+
+# Runs on every push to main that touches incoming/, publishers/, or any
+# v1/modules/ tree. Signs and places any pending incoming/<uuid>/<version>/
+# entries, then regenerates v1/index.json + v1/trust.json so a publisher
+# change (adding a key) ripples without needing a payload push.
+#
+# The workflow itself commits the result back to main, so an author's
+# single "push the incoming/ directory" turns into a finished published
+# version with one Cloudflare Pages deploy.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'incoming/**'
+      - 'publishers/**'
+      - 'scripts/publish.py'
+      - 'scripts/requirements.txt'
+      - '.github/workflows/publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install signing dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Sign + place + regenerate
+        env:
+          EDDSA_SIGNING_SEED_HEX: ${{ secrets.EDDSA_SIGNING_SEED_HEX }}
+        run: python scripts/publish.py
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit + push via GraphQL (signed)
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p .changes-stash
+          # Build the additions list: every changed file under tracking.
+          ADDITIONS=$(git status --porcelain | awk '$1 ~ /^\?\?|^A|^M/ {print $2}')
+          DELETIONS=$(git status --porcelain | awk '$1 ~ /^D/ {print $2}')
+
+          additions_json="[]"
+          for f in $ADDITIONS; do
+            if [[ -f "$f" ]]; then
+              content_b64=$(base64 -w 0 "$f")
+              additions_json=$(jq -c \
+                --arg path "$f" \
+                --arg contents "$content_b64" \
+                '. + [{path: $path, contents: $contents}]' <<<"$additions_json")
+            fi
+          done
+          deletions_json="[]"
+          for f in $DELETIONS; do
+            deletions_json=$(jq -c \
+              --arg path "$f" \
+              '. + [{path: $path}]' <<<"$deletions_json")
+          done
+
+          expected_oid=$(git rev-parse origin/main)
+          headline="publish: refresh registry artefacts"
+          body="Triggered by ${GITHUB_SHA}. Maintained by .github/workflows/publish.yml."
+
+          payload=$(jq -n \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg branch "main" \
+            --arg headline "$headline" \
+            --arg body "$body" \
+            --arg oid "$expected_oid" \
+            --argjson additions "$additions_json" \
+            --argjson deletions "$deletions_json" \
+            '{
+              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid url } } }",
+              variables: {
+                input: {
+                  branch: { repositoryNameWithOwner: $repo, branchName: $branch },
+                  message: { headline: $headline, body: $body },
+                  fileChanges: { additions: $additions, deletions: $deletions },
+                  expectedHeadOid: $oid
+                }
+              }
+            }')
+
+          response=$(printf '%s' "$payload" | gh api graphql --input -)
+          echo "$response" | jq .
+          if echo "$response" | jq -e '.errors // empty' >/dev/null; then
+            echo "::error::createCommitOnBranch returned GraphQL errors"
+            exit 1
+          fi

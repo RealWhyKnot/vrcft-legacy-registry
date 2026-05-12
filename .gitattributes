@@ -1,0 +1,13 @@
+# Force LF on shell-readable files; the publish workflow runs on ubuntu-latest
+# and CRLF in scripts produces unfriendly errors. Binary payloads are
+# auto-detected by git.
+*.py    text eol=lf
+*.sh    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+
+# Treat signatures and payloads as binary -- never normalised, never diffed.
+*.bin   binary
+*.zip   binary
