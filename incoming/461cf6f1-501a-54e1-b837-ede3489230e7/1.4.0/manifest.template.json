@@ -1,0 +1,22 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "Quest Pro Link",
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "supported_hmds": [
+    "quest-pro"
+  ],
+  "uuid": "461cf6f1-501a-54e1-b837-ede3489230e7",
+  "vendor": "regzo2",
+  "version": "1.4.0"
+}

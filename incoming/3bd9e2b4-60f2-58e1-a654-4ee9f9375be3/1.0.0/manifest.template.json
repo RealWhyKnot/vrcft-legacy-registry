@@ -1,0 +1,22 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "Cymple",
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "supported_hmds": [
+    "*"
+  ],
+  "uuid": "3bd9e2b4-60f2-58e1-a654-4ee9f9375be3",
+  "vendor": "Dominocs",
+  "version": "1.0.0"
+}

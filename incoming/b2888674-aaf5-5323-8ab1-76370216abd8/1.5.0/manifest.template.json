@@ -1,0 +1,23 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "SRanipal",
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "supported_hmds": [
+    "vive-pro-eye",
+    "vive-facial-tracker"
+  ],
+  "uuid": "b2888674-aaf5-5323-8ab1-76370216abd8",
+  "vendor": "VRCFaceTracking",
+  "version": "1.5.0"
+}

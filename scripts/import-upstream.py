@@ -220,10 +220,38 @@ def pick_upstream_dll(dlls: list[Path], hint: str | None) -> Path:
     candidates = [d for d in dlls
                   if not excluded.match(d.name)
                   and not d.name.startswith("._")]
+
+    # Filter to managed (.NET) DLLs. Native libs (SRanipal SDK, openxr_loader,
+    # starvr_api, etc.) ship inside many module zips alongside the actual
+    # ExtTrackingModule implementation. dnfile's mdtables presence is the
+    # tell: managed assemblies carry CLR metadata, native ones don't.
+    try:
+        import dnfile  # noqa: F401
+        managed: list[Path] = []
+        for c in candidates:
+            try:
+                pe = __import__("dnfile").dnPE(str(c))
+                if pe.net is not None and pe.net.mdtables is not None:
+                    managed.append(c)
+            except Exception:
+                continue
+        if managed:
+            candidates = managed
+    except ImportError:
+        pass  # dnfile optional; native DLLs may slip through and the disambig error fires
+
     if not candidates:
         fail("Could not pick an upstream DLL automatically. "
              "Pass --upstream-assembly with the filename.")
+
     if len(candidates) > 1:
+        # Heuristic: prefer a DLL whose name carries one of the conventional
+        # markers VRCFT module authors use (VRCFT / Module / ExtTracking /
+        # FaceTracking). Falls back to the disambiguation error.
+        marker = re.compile(r"(VRCFT|FaceTracking|ExtTracking|Module)", re.IGNORECASE)
+        marked = [c for c in candidates if marker.search(c.name)]
+        if len(marked) == 1:
+            return marked[0]
         names = ", ".join(c.name for c in candidates)
         fail(f"Multiple candidate upstream DLLs found ({names}). "
              f"Pass --upstream-assembly to disambiguate.")
