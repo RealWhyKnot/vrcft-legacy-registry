@@ -1,0 +1,25 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "Pico4SAFTExtTrackingModule",
+  "payload_sha256": "3024bf9791d851d9e6ff068e62243247148288a1d6a749ae460ebaa9c88f35b7",
+  "payload_size": 471178,
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "signed_by": "whyknot",
+  "supported_hmds": [
+    "*"
+  ],
+  "uuid": "15949afe-0670-5fa0-bf23-f81be11a8b0b",
+  "vendor": "miranda1000, azmidi",
+  "version": "1.6.1"
+}

@@ -1,0 +1,25 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "FoxyFaceVRCFTInterface",
+  "payload_sha256": "2adcc6725f2f162fec850a614dc4df31d600fb03b58248c320fe1e92f4d436ec",
+  "payload_size": 795605,
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "signed_by": "whyknot",
+  "supported_hmds": [
+    "*"
+  ],
+  "uuid": "ddb6c054-1ee0-54dd-9b1b-ea354cf78789",
+  "vendor": "Jeka8833",
+  "version": "1.0.4.3"
+}

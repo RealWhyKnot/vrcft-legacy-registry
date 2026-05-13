@@ -1,0 +1,25 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "VRCFTOmniceptModule",
+  "payload_sha256": "026c441b5ba04eb574d9ba0d11a88a06607ed9300b9f48d3f8c341b085865e56",
+  "payload_size": 781724,
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "signed_by": "whyknot",
+  "supported_hmds": [
+    "*"
+  ],
+  "uuid": "f20b5d67-1dfd-5b3a-8f75-376a04c40db9",
+  "vendor": "200Tigersbloxed",
+  "version": "1.4.0"
+}

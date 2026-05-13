@@ -1,54 +1,64 @@
 {
-  "generated_at": "2026-05-13T07:02:41Z",
+  "generated_at": "2026-05-13T07:40:25Z",
   "modules": [
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "Project Babble",
-      "uuid": "117ab3c5-143e-59fc-97cc-5ad9ac7c9088",
-      "vendor": "dfgHiatus",
-      "version": "2.1.2"
+      "name": "Pico4SAFTExtTrackingModule",
+      "uuid": "15949afe-0670-5fa0-bf23-f81be11a8b0b",
+      "vendor": "miranda1000, azmidi",
+      "version": "1.6.1"
     },
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "MeowFace",
+      "name": "MeowFaceTrackingModule",
       "uuid": "227be6c2-7ed7-536b-8913-825fcf075b26",
-      "vendor": "regzo2",
-      "version": "1.3.0"
+      "vendor": "azmidi",
+      "version": "1.3"
     },
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "Pimax",
+      "name": "(OpenXR) ALXR Local Module",
+      "uuid": "27d4d8ff-d11f-5500-9174-84a03fe2c6c6",
+      "vendor": "korejan",
+      "version": "1.6.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "VRCFTPimaxModule",
       "uuid": "2cf0ee83-b7d3-5c34-a80b-3fa46d8e957d",
-      "vendor": "benaclejames",
-      "version": "1.1.0"
+      "vendor": "dfgHiatus",
+      "version": "1.0"
     },
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "Cymple",
+      "name": "cympleFaceTracking",
       "uuid": "3bd9e2b4-60f2-58e1-a654-4ee9f9375be3",
       "vendor": "Dominocs",
-      "version": "1.0.0"
+      "version": "1.0"
     },
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "Quest Pro Link",
+      "name": "(BROKEN) Meta Quest Link Module",
       "uuid": "461cf6f1-501a-54e1-b837-ede3489230e7",
-      "vendor": "regzo2",
+      "vendor": "TofuLemon, azmidi",
       "version": "1.4.0"
     },
     {
@@ -56,10 +66,20 @@
         "eye",
         "expression"
       ],
-      "name": "Pico",
-      "uuid": "46960549-1ada-561a-a472-d9d8286985ec",
-      "vendor": "lonelyicer",
-      "version": "0.1.10"
+      "name": "SteamLink VRCFT Module",
+      "uuid": "67615b0b-d9ef-50fd-8076-314d5a12f872",
+      "vendor": "Ykeara",
+      "version": "1.0.6"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "ViveStreamingFaceTrackingModule",
+      "uuid": "817e7966-3d4f-50a7-8432-12d754fac9fb",
+      "vendor": "HTC Corp.",
+      "version": "1.7"
     },
     {
       "capabilities": [
@@ -68,17 +88,27 @@
       ],
       "name": "LiveLink",
       "uuid": "86e0e6b7-bab7-54c2-9850-a684a2463d84",
-      "vendor": "VRCFaceTracking",
-      "version": "1.2.0"
+      "vendor": "Dazbme and tkya",
+      "version": "1.2.2"
     },
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "PSVR2",
+      "name": "iFacialMocap Tracking Module",
+      "uuid": "8eeecc93-2846-5a0b-be1d-b92e34f326c7",
+      "vendor": "Shuisho",
+      "version": "1.0.5-fix"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "PlayStation VR2 Module",
       "uuid": "9784aff8-7044-5c13-a81f-dee4a03de5a7",
-      "vendor": "BnuuySolutions",
+      "vendor": "Bnuuy Solutions & PlayStation VR2 Toolkit Contributors",
       "version": "0.0.3"
     },
     {
@@ -86,59 +116,39 @@
         "eye",
         "expression"
       ],
-      "name": "Varjo",
+      "name": "VRCFT-Babble",
+      "uuid": "99bebab0-3ef0-5bc9-8115-1617bda4d09a",
+      "vendor": "dfgHiatus",
+      "version": "3.0.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "VRCFTVarjoModule",
       "uuid": "9a21daa0-62cd-5d87-b30a-b132fd4cd559",
-      "vendor": "m3gagluk",
-      "version": "2.0.0"
+      "vendor": "Chickenbread & M3gagluk",
+      "version": "4.10"
     },
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "StarVR",
-      "uuid": "9bebfb20-73b5-5447-8450-b82806c78377",
-      "vendor": "Chickenbreadlp",
-      "version": "1.1.0"
-    },
-    {
-      "capabilities": [
-        "eye",
-        "expression"
-      ],
-      "name": "SRanipal",
+      "name": "SRanipalTrackingModule",
       "uuid": "b2888674-aaf5-5323-8ab1-76370216abd8",
-      "vendor": "VRCFaceTracking",
-      "version": "1.5.0"
+      "vendor": "VRCFT Team",
+      "version": "1.5"
     },
     {
       "capabilities": [
         "eye",
         "expression"
       ],
-      "name": "Bigscreen Beyond",
-      "uuid": "d1063541-ee11-5852-96e2-7e65f784d076",
-      "vendor": "BigscreenVR",
-      "version": "1.1.0"
-    },
-    {
-      "capabilities": [
-        "eye",
-        "expression"
-      ],
-      "name": "ALVR",
-      "uuid": "f0183737-7387-580c-8e06-0c742a85bdd2",
-      "vendor": "alvr-org",
-      "version": "1.3.0"
-    },
-    {
-      "capabilities": [
-        "eye",
-        "expression"
-      ],
-      "name": "Omnicept",
-      "uuid": "f20b5d67-1dfd-5b3a-8f75-376a04c40db9",
-      "vendor": "200Tigersbloxed",
+      "name": "ALXR Remote Module",
+      "uuid": "c6899006-46cf-5ee0-b40e-511753b1d74e",
+      "vendor": "korejan",
       "version": "1.6.0"
     },
     {
@@ -146,9 +156,59 @@
         "eye",
         "expression"
       ],
-      "name": "ETVR",
+      "name": "BeyondTrackingModule",
+      "uuid": "d1063541-ee11-5852-96e2-7e65f784d076",
+      "vendor": "BigscreenVR",
+      "version": "1.1.0.2"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "FoxyFaceVRCFTInterface",
+      "uuid": "ddb6c054-1ee0-54dd-9b1b-ea354cf78789",
+      "vendor": "Jeka8833",
+      "version": "1.0.4.3"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "ALVR Module",
+      "uuid": "f0183737-7387-580c-8e06-0c742a85bdd2",
+      "vendor": "zmerp, curoviyxru",
+      "version": "1.3.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "VRCFTOmniceptModule",
+      "uuid": "f20b5d67-1dfd-5b3a-8f75-376a04c40db9",
+      "vendor": "200Tigersbloxed",
+      "version": "1.4.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "Virtual Desktop",
+      "uuid": "f426b302-904c-54fb-b9b4-72493b4e19d4",
+      "vendor": "Virtual Desktop, Inc.",
+      "version": "1.4"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "ETVR Tracking Module",
       "uuid": "fc211db8-48e1-5a65-b549-932785406f47",
-      "vendor": "EyeTrackVR",
+      "vendor": "Lorow with ETVR Team",
       "version": "0.0.5"
     }
   ],
