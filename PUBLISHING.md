@@ -69,6 +69,41 @@ If the workflow fails:
 
 Delete `v1/modules/<uuid>/versions/<version>/` and push. The validate workflow will refuse the push if `v1/modules/<uuid>/manifest.json` still points at the retired version -- update or delete the latest pointer too. Existing clients that already pulled the retired manifest continue to verify against the previously-fetched signature; the registry just stops serving it to new clients.
 
+## Importing a VRCFaceTracking upstream module (no per-module C#)
+
+The OpenVR-Pair host ships a reflection bridge (`OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter`) that loads any upstream VRCFT v2 module at runtime via reflection. To wrap an existing community module, you don't author C# at all -- you point a script at the upstream artifacts and let it generate the bridge config + manifest + payload zip:
+
+```
+python scripts/import-upstream.py \
+  --source https://github.com/<author>/<module>/releases/download/v1.2/<Module>.zip \
+  --name "Quest Pro Face Tracking" \
+  --vendor "<author>" \
+  --version 1.2.0
+```
+
+What the script does:
+
+1. Downloads the upstream zip (or copies a local path / directory).
+2. Picks the upstream module DLL by name heuristics (or use `--upstream-assembly Foo.dll` to be explicit).
+3. Auto-detects the module's `ExtTrackingModule` subclass via dnfile metadata scan (or use `--upstream-type Namespace.Class` to skip).
+4. Derives a stable UUIDv5 from the upstream identity (or use `--uuid <explicit>`).
+5. Bundles upstream DLLs + `OpenVRPair.FaceTracking.VrcftCompat.dll` + `OpenVRPair.FaceTracking.ModuleSdk.dll` (+ `Microsoft.Extensions.Logging.Abstractions.dll` if present) into a `payload.zip` containing an `assemblies/` tree.
+6. Emits `assemblies/bridge.json` so the reflecting adapter knows which upstream type to instantiate.
+7. Writes a manifest template with `entry_type` pointed at the reflecting adapter.
+8. Stages everything under `incoming/<uuid>/<version>/`.
+
+Then commit + push as in the standard flow above. The publish workflow signs + places + indexes; no C# was touched.
+
+**Where the script looks for host assemblies**: by default `../OpenVR-WKPairDriver/build/facetracking-host-publish/` (the standard output of `build.ps1` in the monorepo). Override with `--host-build-dir`.
+
+**Caveats this approach inherits from the existing structural shim**:
+
+- The shim assumes upstream's gaze is normalised sin(pitch)/sin(yaw); modules that emit raw radians or 3D gaze need a per-module wrapper or a future extension to the bridge config.
+- The shim assumes shape ordering matches Unified Expressions v2; modules built against older SDKs may need a remapping table.
+- Upstream constructors accepting parameters other than (parameterless) or `(ILogger)` are not handled; that's the failure case where you fall back to authoring a manual wrapper.
+
+If a module trips one of those caveats, the host's `facetracking_log.<ts>.txt` shows a reflection error at load time naming the missing or mismatched member -- file an issue and we'll either tighten the bridge or ship a one-off wrapper for that module.
+
 ## Local signing (no CI)
 
 If you can't (or don't want to) round-trip through the publish workflow, run the signer locally:
