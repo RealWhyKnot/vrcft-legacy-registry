@@ -1,3 +1,8 @@
 {
-  "keys": []
+  "keys": [
+    {
+      "ed25519_pub": "achlgguFbpsqTf/H/LQPtorMnSrQTFcO1ODem8hFdvQ=",
+      "key_id": "whyknot"
+    }
+  ]
 }
