@@ -1,0 +1,27 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "Varjo",
+  "payload_sha256": "b30ac0f20bc051adcd7bffad36eb0e2d0b5ba27a0e773ecab854669ef0398e66",
+  "payload_size": 522053,
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "signed_by": "whyknot",
+  "supported_hmds": [
+    "varjo-aero",
+    "varjo-xr3",
+    "varjo-vr3"
+  ],
+  "uuid": "9a21daa0-62cd-5d87-b30a-b132fd4cd559",
+  "vendor": "m3gagluk",
+  "version": "2.0.0"
+}

@@ -7,16 +7,19 @@
   "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
-  "name": "Project Babble",
+  "name": "Cymple",
+  "payload_sha256": "9b8cf136ac5386ab1bd55573c90e03101db3c6d86f6d3e6c2c8f366ceb4df306",
+  "payload_size": 507246,
   "platforms": [
     "windows-x64"
   ],
   "schema": 1,
   "sdk_version": "1.0",
+  "signed_by": "whyknot",
   "supported_hmds": [
     "*"
   ],
-  "uuid": "117ab3c5-143e-59fc-97cc-5ad9ac7c9088",
-  "vendor": "dfgHiatus",
-  "version": "2.1.2"
+  "uuid": "3bd9e2b4-60f2-58e1-a654-4ee9f9375be3",
+  "vendor": "Dominocs",
+  "version": "1.0.0"
 }
