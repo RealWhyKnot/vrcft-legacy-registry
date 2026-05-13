@@ -2,7 +2,7 @@
 
 Mirror of every module the upstream [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) app shows in its Modules tab. Served at `https://legacy-registry.whyknot.dev` so the OpenVR-Pair face-tracking host can fetch and load the same modules without re-authoring any of them.
 
-The native module SDK that will eventually replace this lives in [OpenVR-WKPairDriver](https://github.com/RealWhyKnot/OpenVR-WKPairDriver) under `modules/facetracking/`. Once it ships, new modules will be authored against it directly and surfaced separately in the host overlay; legacy modules stay supported here and continue to load via the existing compatibility shim.
+The native module SDK that will eventually replace this lives in [WKOpenVR](https://github.com/RealWhyKnot/WKOpenVR) under `modules/facetracking/`. Once it ships, new modules will be authored against it directly and surfaced separately in the host overlay; legacy modules stay supported here and continue to load via the existing compatibility shim.
 
 ## Endpoints
 

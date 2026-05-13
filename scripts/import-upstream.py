@@ -32,7 +32,7 @@ the same module under a new version reuses the same UUID.
 
 If --host-build-dir is omitted, the script looks for the OpenVR-Pair
 monorepo's host build output at the default sibling location:
-    ../OpenVR-WKPairDriver/build/facetracking-host-publish/
+    ../WKOpenVR/build/facetracking-host-publish/
 
 The output is staged under incoming/<uuid>/<version>/. Push to main and
 the publish workflow signs + places + indexes it.
@@ -318,7 +318,7 @@ def resolve_host_build_dir(arg: Path | None) -> Path:
             fail(f"--host-build-dir does not exist: {d}")
         return d
 
-    default = repo_root().parent / "OpenVR-WKPairDriver" / "build" / "facetracking-host-publish"
+    default = repo_root().parent / "WKOpenVR" / "build" / "facetracking-host-publish"
     if not default.is_dir():
         fail(f"Default host build dir not found at {default}. "
              "Build the host (cmake --build ... or build.ps1) or pass --host-build-dir.")
