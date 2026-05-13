@@ -1,5 +1,86 @@
 {
-  "generated_at": "2026-05-12T19:52:48Z",
-  "modules": [],
+  "generated_at": "2026-05-13T06:52:22Z",
+  "modules": [
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "MeowFace",
+      "uuid": "227be6c2-7ed7-536b-8913-825fcf075b26",
+      "vendor": "regzo2",
+      "version": "1.3.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "Pimax",
+      "uuid": "2cf0ee83-b7d3-5c34-a80b-3fa46d8e957d",
+      "vendor": "benaclejames",
+      "version": "1.1.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "Pico",
+      "uuid": "46960549-1ada-561a-a472-d9d8286985ec",
+      "vendor": "lonelyicer",
+      "version": "0.1.10"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "PSVR2",
+      "uuid": "9784aff8-7044-5c13-a81f-dee4a03de5a7",
+      "vendor": "BnuuySolutions",
+      "version": "0.0.3"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "Bigscreen Beyond",
+      "uuid": "d1063541-ee11-5852-96e2-7e65f784d076",
+      "vendor": "BigscreenVR",
+      "version": "1.1.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "ALVR",
+      "uuid": "f0183737-7387-580c-8e06-0c742a85bdd2",
+      "vendor": "alvr-org",
+      "version": "1.3.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "Omnicept",
+      "uuid": "f20b5d67-1dfd-5b3a-8f75-376a04c40db9",
+      "vendor": "200Tigersbloxed",
+      "version": "1.6.0"
+    },
+    {
+      "capabilities": [
+        "eye",
+        "expression"
+      ],
+      "name": "ETVR",
+      "uuid": "fc211db8-48e1-5a65-b549-932785406f47",
+      "vendor": "EyeTrackVR",
+      "version": "0.0.5"
+    }
+  ],
   "schema": 1
 }
