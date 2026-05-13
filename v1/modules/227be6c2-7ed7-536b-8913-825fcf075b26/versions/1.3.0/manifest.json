@@ -1,0 +1,25 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "MeowFace",
+  "payload_sha256": "0219e5d4bae05bc5e17da42273241a2a82d11e804dd2d8692e7300055c375f70",
+  "payload_size": 524488,
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "signed_by": "whyknot",
+  "supported_hmds": [
+    "*"
+  ],
+  "uuid": "227be6c2-7ed7-536b-8913-825fcf075b26",
+  "vendor": "regzo2",
+  "version": "1.3.0"
+}

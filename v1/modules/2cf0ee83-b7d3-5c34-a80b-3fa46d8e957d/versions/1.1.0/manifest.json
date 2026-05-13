@@ -1,0 +1,26 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "Pimax",
+  "payload_sha256": "5daa4a9831555124c0740089668b39f8dbdd84e93d73d7c83acd4878ebbd6e04",
+  "payload_size": 695853,
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "signed_by": "whyknot",
+  "supported_hmds": [
+    "pimax-8kx",
+    "pimax-5k-super"
+  ],
+  "uuid": "2cf0ee83-b7d3-5c34-a80b-3fa46d8e957d",
+  "vendor": "benaclejames",
+  "version": "1.1.0"
+}
