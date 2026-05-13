@@ -8,14 +8,13 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "ALVR Module",
-  "payload_sha256": "0b1516b5a8eecb5a74e34864c036076fb9ebca248ecd643a65521fe32ebd6854",
+  "payload_sha256": "b914dfa3895f54378936c2785c2ecaa9f1519bf476d4048c3a2633a209a3e5bc",
   "payload_size": 514491,
   "platforms": [
     "windows-x64"
   ],
   "schema": 1,
   "sdk_version": "1.0",
-  "signed_by": "whyknot",
   "supported_hmds": [
     "*"
   ],

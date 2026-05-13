@@ -8,14 +8,13 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "ViveStreamingFaceTrackingModule",
-  "payload_sha256": "e21660a62e9d5f35e931f2f31709f99cb26cba68008de61603e989ddc0edc51c",
+  "payload_sha256": "13cac5db5942b14a69e79c364809c023f3580fc7ffd4f7f97ecb6db976aa1a25",
   "payload_size": 1101250,
   "platforms": [
     "windows-x64"
   ],
   "schema": 1,
   "sdk_version": "1.0",
-  "signed_by": "whyknot",
   "supported_hmds": [
     "*"
   ],

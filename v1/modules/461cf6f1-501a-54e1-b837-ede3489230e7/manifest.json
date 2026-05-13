@@ -8,14 +8,13 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "(BROKEN) Meta Quest Link Module",
-  "payload_sha256": "669549182c00b0f450811d41b25a0f8e0b45d7380475f5509bca25dee00c5f99",
+  "payload_sha256": "90861cc3b1fa3b407f83e0570ecb0d847b55d13d6bc18ad5b0f17835a611c867",
   "payload_size": 1205893,
   "platforms": [
     "windows-x64"
   ],
   "schema": 1,
   "sdk_version": "1.0",
-  "signed_by": "whyknot",
   "supported_hmds": [
     "*"
   ],

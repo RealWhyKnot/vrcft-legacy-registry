@@ -8,14 +8,13 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "Virtual Desktop",
-  "payload_sha256": "61c261e895e6904d48ab81362eea42b7da99bb4b6d37c34f22a4752b31ecf224",
+  "payload_sha256": "71b8767c5854d2fd8c82e710c93b92fa63b2c4806bf4aec049a0d5bcc4fc2b9e",
   "payload_size": 497569,
   "platforms": [
     "windows-x64"
   ],
   "schema": 1,
   "sdk_version": "1.0",
-  "signed_by": "whyknot",
   "supported_hmds": [
     "*"
   ],

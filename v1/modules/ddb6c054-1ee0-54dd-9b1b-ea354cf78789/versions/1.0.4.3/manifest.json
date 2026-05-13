@@ -8,14 +8,13 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "FoxyFaceVRCFTInterface",
-  "payload_sha256": "2adcc6725f2f162fec850a614dc4df31d600fb03b58248c320fe1e92f4d436ec",
+  "payload_sha256": "dfbd138e9cc2073ed1ed9837efc6fb33042fbb6bd4b7b97e134a3b598bd02cbe",
   "payload_size": 795605,
   "platforms": [
     "windows-x64"
   ],
   "schema": 1,
   "sdk_version": "1.0",
-  "signed_by": "whyknot",
   "supported_hmds": [
     "*"
   ],

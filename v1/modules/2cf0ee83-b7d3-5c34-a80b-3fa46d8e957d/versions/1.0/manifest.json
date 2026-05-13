@@ -8,14 +8,13 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "VRCFTPimaxModule",
-  "payload_sha256": "4ccc229592d9306831c0444bf05f9652b6b0301573f6a81796a2d0ed6b8b422c",
+  "payload_sha256": "66922eb2729f5baeff0b33e10c29efafcfb07ab37379222085e3c05b87b23ec1",
   "payload_size": 1396584,
   "platforms": [
     "windows-x64"
   ],
   "schema": 1,
   "sdk_version": "1.0",
-  "signed_by": "whyknot",
   "supported_hmds": [
     "*"
   ],
