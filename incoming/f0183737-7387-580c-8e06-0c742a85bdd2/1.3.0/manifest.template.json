@@ -1,0 +1,22 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "ALVR Module",
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "supported_hmds": [
+    "*"
+  ],
+  "uuid": "f0183737-7387-580c-8e06-0c742a85bdd2",
+  "vendor": "zmerp, curoviyxru",
+  "version": "1.3.0"
+}

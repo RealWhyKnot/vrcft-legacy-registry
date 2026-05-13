@@ -1,0 +1,22 @@
+{
+  "capabilities": [
+    "eye",
+    "expression"
+  ],
+  "dependencies": [],
+  "entry_assembly": "OpenVRPair.FaceTracking.VrcftCompat.dll",
+  "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
+  "min_host_version": "1.0",
+  "name": "SteamLink VRCFT Module",
+  "platforms": [
+    "windows-x64"
+  ],
+  "schema": 1,
+  "sdk_version": "1.0",
+  "supported_hmds": [
+    "*"
+  ],
+  "uuid": "67615b0b-d9ef-50fd-8076-314d5a12f872",
+  "vendor": "Ykeara",
+  "version": "1.0.6"
+}
