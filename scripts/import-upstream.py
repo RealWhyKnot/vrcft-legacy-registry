@@ -368,7 +368,15 @@ def _stage_module_inner(args: argparse.Namespace, workdir: Path) -> Path:
     asm_root = workdir / "assemblies"
     asm_root.mkdir()
 
-    # Copy every upstream DLL (vendor module + its SDK deps + native helpers).
+    # Copy every upstream DLL into assemblies/, no exceptions. This is
+    # deliberately broader than the auto-pick: pick_upstream_dll's exclude
+    # list is for "which one carries the primary class" only. The payload
+    # itself must include all upstream DLLs, including native libs the
+    # vendor module P/Invokes (SRanipal SDK, openxr_loader, starvr_api,
+    # tobii_stream_engine, libHTC_License, nanomsg, Meta-OpenXR-Bridge,
+    # etc.) -- otherwise the module loads but throws DllNotFoundException
+    # on its first hardware sample. The host's ModuleLoadContext.LoadUnmanagedDll
+    # override probes this directory at native-load time.
     for d in dlls:
         shutil.copy2(d, asm_root / d.name)
     # Native .dll / .so / config / runtimes/ subtrees that ship next to the upstream module.
