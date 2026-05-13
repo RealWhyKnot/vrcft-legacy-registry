@@ -76,65 +76,83 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          mkdir -p .changes-stash
 
-          # Build the additions + deletions list. git status with
-          # --untracked-files=all expands new directories to individual
-          # files; without it, untracked directories show as a single line
-          # (e.g. "?? v1/modules/<uuid>/") and the per-file content loop
-          # silently skips them, which is how the 2026-05-13 publish run
-          # committed an updated index.json but left the per-version
-          # manifest/payload/signature files unpublished.
-          ADDITIONS=$(git status --porcelain --untracked-files=all \
-                       | awk '$1 ~ /^\?\?|^A|^M/ {print substr($0, 4)}')
-          DELETIONS=$(git status --porcelain --untracked-files=all \
-                       | awk '$1 ~ /^D/ {print substr($0, 4)}')
+          # Build the GraphQL payload in Python so the shell argv size limit
+          # doesn't bite. Earlier versions of this step shelled the additions
+          # through jq --arg path --arg contents; with eight 500-700 KB
+          # payloads (base64-encoded), the combined argv exceeded the
+          # kernel's limit and exec failed with "Argument list too long".
+          # Python reads each file, base64-encodes, builds the JSON in
+          # memory, dumps to a temp file, then pipes via gh api graphql
+          # --input <file>. The file is large but neither bash nor jq sees
+          # it as command-line args.
+          python3 - <<'PY' > /tmp/graphql-payload.json
+          import base64, json, os, subprocess
 
-          additions_json="[]"
-          while IFS= read -r f; do
-            [ -z "$f" ] && continue
-            [ -f "$f" ] || continue
-            content_b64=$(base64 -w 0 "$f")
-            additions_json=$(jq -c \
-              --arg path "$f" \
-              --arg contents "$content_b64" \
-              '. + [{path: $path, contents: $contents}]' <<<"$additions_json")
-          done <<< "$ADDITIONS"
-          deletions_json="[]"
-          while IFS= read -r f; do
-            [ -z "$f" ] && continue
-            deletions_json=$(jq -c \
-              --arg path "$f" \
-              '. + [{path: $path}]' <<<"$deletions_json")
-          done <<< "$DELETIONS"
+          out = subprocess.check_output(
+              ["git", "status", "--porcelain", "--untracked-files=all"],
+              text=True,
+          )
 
-          expected_oid=$(git rev-parse origin/main)
-          headline="publish: refresh registry artefacts"
-          body="Triggered by ${GITHUB_SHA}. Maintained by .github/workflows/publish.yml."
+          additions = []
+          deletions = []
+          for line in out.splitlines():
+              if not line:
+                  continue
+              status = line[:2]
+              path = line[3:]
+              if status[:2] in (" D", "D ", "DD"):
+                  deletions.append({"path": path})
+                  continue
+              # Anything else that names a real file: additions.
+              if not os.path.isfile(path):
+                  continue
+              with open(path, "rb") as f:
+                  data = f.read()
+              additions.append({
+                  "path": path,
+                  "contents": base64.b64encode(data).decode("ascii"),
+              })
 
-          payload=$(jq -n \
-            --arg repo "$GITHUB_REPOSITORY" \
-            --arg branch "main" \
-            --arg headline "$headline" \
-            --arg body "$body" \
-            --arg oid "$expected_oid" \
-            --argjson additions "$additions_json" \
-            --argjson deletions "$deletions_json" \
-            '{
-              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid url } } }",
-              variables: {
-                input: {
-                  branch: { repositoryNameWithOwner: $repo, branchName: $branch },
-                  message: { headline: $headline, body: $body },
-                  fileChanges: { additions: $additions, deletions: $deletions },
-                  expectedHeadOid: $oid
-                }
-              }
-            }')
+          repo = os.environ["GITHUB_REPOSITORY"]
+          sha  = os.environ["GITHUB_SHA"]
+          expected_oid = subprocess.check_output(
+              ["git", "rev-parse", "origin/main"], text=True).strip()
 
-          response=$(printf '%s' "$payload" | gh api graphql --input -)
+          payload = {
+              "query": ("mutation($input: CreateCommitOnBranchInput!) {"
+                        " createCommitOnBranch(input: $input)"
+                        " { commit { oid url } } }"),
+              "variables": {
+                  "input": {
+                      "branch": {
+                          "repositoryNameWithOwner": repo,
+                          "branchName": "main",
+                      },
+                      "message": {
+                          "headline": "publish: refresh registry artefacts",
+                          "body": (f"Triggered by {sha}. "
+                                   "Maintained by .github/workflows/publish.yml."),
+                      },
+                      "fileChanges": {
+                          "additions": additions,
+                          "deletions": deletions,
+                      },
+                      "expectedHeadOid": expected_oid,
+                  },
+              },
+          }
+          json.dump(payload, __import__("sys").stdout)
+          print(
+              f"additions={len(additions)} deletions={len(deletions)}",
+              file=__import__("sys").stderr,
+          )
+          PY
+
+          response=$(gh api graphql --input /tmp/graphql-payload.json)
           echo "$response" | jq .
           if echo "$response" | jq -e '.errors // empty' >/dev/null; then
             echo "::error::createCommitOnBranch returned GraphQL errors"
             exit 1
           fi
+          rm -f /tmp/graphql-payload.json
