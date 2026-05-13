@@ -77,26 +77,36 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .changes-stash
-          # Build the additions list: every changed file under tracking.
-          ADDITIONS=$(git status --porcelain | awk '$1 ~ /^\?\?|^A|^M/ {print $2}')
-          DELETIONS=$(git status --porcelain | awk '$1 ~ /^D/ {print $2}')
+
+          # Build the additions + deletions list. git status with
+          # --untracked-files=all expands new directories to individual
+          # files; without it, untracked directories show as a single line
+          # (e.g. "?? v1/modules/<uuid>/") and the per-file content loop
+          # silently skips them, which is how the 2026-05-13 publish run
+          # committed an updated index.json but left the per-version
+          # manifest/payload/signature files unpublished.
+          ADDITIONS=$(git status --porcelain --untracked-files=all \
+                       | awk '$1 ~ /^\?\?|^A|^M/ {print substr($0, 4)}')
+          DELETIONS=$(git status --porcelain --untracked-files=all \
+                       | awk '$1 ~ /^D/ {print substr($0, 4)}')
 
           additions_json="[]"
-          for f in $ADDITIONS; do
-            if [[ -f "$f" ]]; then
-              content_b64=$(base64 -w 0 "$f")
-              additions_json=$(jq -c \
-                --arg path "$f" \
-                --arg contents "$content_b64" \
-                '. + [{path: $path, contents: $contents}]' <<<"$additions_json")
-            fi
-          done
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            [ -f "$f" ] || continue
+            content_b64=$(base64 -w 0 "$f")
+            additions_json=$(jq -c \
+              --arg path "$f" \
+              --arg contents "$content_b64" \
+              '. + [{path: $path, contents: $contents}]' <<<"$additions_json")
+          done <<< "$ADDITIONS"
           deletions_json="[]"
-          for f in $DELETIONS; do
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
             deletions_json=$(jq -c \
               --arg path "$f" \
               '. + [{path: $path}]' <<<"$deletions_json")
-          done
+          done <<< "$DELETIONS"
 
           expected_oid=$(git rev-parse origin/main)
           headline="publish: refresh registry artefacts"
