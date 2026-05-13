@@ -1,57 +1,26 @@
-# vrcft-registry
+# vrcft-legacy-registry
 
-Static module registry for the FaceTracking feature of [OpenVR-Pair](https://github.com/RealWhyKnot/OpenVR-WKPairDriver). Hosted at `https://registry.whyknot.dev` via Cloudflare Pages; backed by the contents of this repo.
+Signed CDN-hosted copy of every module the upstream [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) app shows in its Modules tab. Served at `https://registry.whyknot.dev` so the OpenVR-Pair face-tracking host can fetch and load the same modules without re-authoring any of them.
 
-The C# host (`OpenVRPair.FaceModuleHost`) fetches module manifests + payloads + Ed25519 signatures from `registry.whyknot.dev`. This repo is the source-of-truth for what's served there: every push that touches `incoming/` or `publishers/` runs the publish workflow, which signs the new payload, places it under `v1/modules/<uuid>/versions/<version>/`, refreshes the index + trust list, and commits the result. Cloudflare Pages picks up the new commit and deploys.
-
-## Layout
-
-```
-v1/
-  index.json                              listing of every module's latest version
-  trust.json                              publishers' public keys, mirrored from publishers/
-  modules/
-    <uuid>/
-      manifest.json                       "latest" pointer (copy of newest version's manifest)
-      versions/
-        <semver>/
-          manifest.json                   fully stamped + signed manifest
-          payload.zip                     the module DLL bundle
-          signature.bin                   Ed25519(SHA256(payload.zip)), 64 raw bytes
-publishers/
-  <key_id>.json                           one file per trusted publisher
-incoming/
-  <uuid>/<version>/
-    payload.zip                           author drops this
-    manifest.template.json                author drops this; workflow fills computed fields
-scripts/
-  publish.py                              signs incoming/, places under v1/, regenerates index + trust
-  validate.py                             CI: schema + payload hash + signature checks
-  keygen.py                               one-shot helper to mint a publisher keypair
-_headers / _redirects                     Cloudflare Pages config (extensionless URLs + caching)
-```
+The native module SDK that will eventually replace this lives in [OpenVR-WKPairDriver](https://github.com/RealWhyKnot/OpenVR-WKPairDriver) under `modules/facetracking/`. Once it ships, new modules will be authored against it directly and this mirror's role tapers off; existing legacy modules stay supported here.
 
 ## Endpoints
 
-| URL (as the C# host calls it) | Served from | Content-Type |
-|---|---|---|
-| `GET /v1/index` | `v1/index.json` | `application/json` |
-| `GET /v1/trust.json` | `v1/trust.json` | `application/json` |
-| `GET /v1/modules/<uuid>/manifest` | `v1/modules/<uuid>/manifest.json` | `application/json` |
-| `GET /v1/modules/<uuid>/versions/<ver>/manifest` | `.../manifest.json` | `application/json` |
-| `GET /v1/modules/<uuid>/versions/<ver>/payload` | `.../payload.zip` | `application/zip` |
-| `GET /v1/modules/<uuid>/versions/<ver>/signature` | `.../signature.bin` (exactly 64 bytes) | `application/octet-stream` |
+| URL | Returns |
+|---|---|
+| `https://registry.whyknot.dev/v1/index` | List of every module and its latest version |
+| `https://registry.whyknot.dev/v1/trust.json` | Trusted publisher Ed25519 public keys |
+| `https://registry.whyknot.dev/v1/modules/<uuid>/manifest` | Module's latest manifest JSON |
+| `https://registry.whyknot.dev/v1/modules/<uuid>/versions/<ver>/manifest` | Pinned version's manifest |
+| `https://registry.whyknot.dev/v1/modules/<uuid>/versions/<ver>/payload` | Signed module zip |
+| `https://registry.whyknot.dev/v1/modules/<uuid>/versions/<ver>/signature` | 64-byte Ed25519 signature |
 
-`_redirects` handles the extensionless mapping. `/v1/index` ships with a short cache lifetime (60 s, ETag-revalidated); per-version artefacts carry `Cache-Control: immutable` for a year because a republish always ships as a new directory.
+End users don't interact with this repository directly. The OpenVR-Pair host fetches manifests + payloads from `registry.whyknot.dev`, verifies signatures against the keys in `v1/trust.json`, and loads the module.
 
-## Publishing a module
+## Mirroring
 
-See [PUBLISHING.md](PUBLISHING.md).
-
-## End-user trust setup
-
-See [TRUST.md](TRUST.md).
+Upstream's authoritative module list lives behind `https://rjlk4u22t36tvqz3bvbkwv675a0wbous.lambda-url.us-east-1.on.aws/modules` -- the same endpoint the VRCFaceTracking app reads. A scheduled workflow polls it once a day, re-imports any added or updated module, and re-signs. Removed modules drop out of the index. The set is byte-for-byte aligned with what upstream considers natively supported, with at most a 24-hour propagation lag.
 
 ## License
 
-GPL-3.0. The signed payloads each carry their own license inside the zip.
+GPL-3.0; see `LICENSE`. Includes redistributed copies of upstream-licensed assemblies whose licenses are reproduced in `NOTICE.md`.

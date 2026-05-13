@@ -1,5 +1,5 @@
-# Cloudflare Pages rewrites: extensionless URLs the RegistryClient hits ->
-# the actual files on disk. Status 200 = rewrite (URL stays the same), so
+# Cloudflare Pages rewrites: extensionless URLs the host expects -> the
+# actual files on disk. Status 200 = rewrite (URL stays the same), so
 # the client sees /v1/index but Cloudflare serves /v1/index.json. The
 # Content-Type comes from the file extension Cloudflare reads after the
 # rewrite, which keeps the JSON / octet-stream split correct without a
@@ -9,4 +9,3 @@
 /v1/modules/:uuid/manifest                             /v1/modules/:uuid/manifest.json                             200
 /v1/modules/:uuid/versions/:version/manifest          /v1/modules/:uuid/versions/:version/manifest.json          200
 /v1/modules/:uuid/versions/:version/payload           /v1/modules/:uuid/versions/:version/payload.zip            200
-/v1/modules/:uuid/versions/:version/signature         /v1/modules/:uuid/versions/:version/signature.bin          200

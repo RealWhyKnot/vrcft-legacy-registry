@@ -1,14 +1,13 @@
 name: Validate
 
-# Runs on every push + pull request. Replays the same checks the C# host
-# enforces against the registry contents: manifest schema, payload SHA-256,
-# 64-byte Ed25519 signature, and cross-coherence between
-# publishers/*.json, v1/index.json, v1/trust.json, and the per-version
-# manifests.
+# Runs on every push + pull request. Re-checks: manifest schema, payload
+# SHA-256 hashes, cross-coherence between v1/index.json and the per-
+# version manifests, and that incoming/ doesn't carry leftover files
+# after a publish run.
 #
-# Catches a hand-edit that drifts the index, a payload swap that doesn't
-# re-sign, a stale latest-pointer after a version retire. Required-check
-# this on main if you want server-side enforcement.
+# Required-check this on main if you want server-side enforcement (the
+# publish workflow also runs validate.py inline before pushing, so the
+# in-tree state is always validated against itself).
 
 on:
   push:
@@ -30,9 +29,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Install validation dependencies
-        run: pip install -r scripts/requirements.txt
 
       - name: Validate registry
         run: python scripts/validate.py

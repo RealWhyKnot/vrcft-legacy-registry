@@ -1,36 +1,32 @@
 #!/usr/bin/env python3
 """
 Process every incoming/<uuid>/<version>/ directory: validate the template,
-compute the payload hash, stamp the manifest, sign the SHA-256 digest of
-the payload with the configured Ed25519 signing seed, write the finished
+compute the payload SHA-256, stamp the manifest, write the finished
 artefacts under v1/modules/<uuid>/versions/<version>/, refresh the
 "latest" pointer at v1/modules/<uuid>/manifest.json, regenerate
-v1/index.json, refresh v1/trust.json from publishers/*.json, and delete
-the consumed incoming/ directory.
+v1/index.json, and delete the consumed incoming/ directory.
 
 Runs from .github/workflows/publish.yml on push. Idempotent: if no
-incoming/ subdirectories exist, the script still refreshes the index +
-trust list (cheap) and exits 0 with no commit-worthy changes.
+incoming/ subdirectories exist, the script refreshes the index only if
+content changed (the `generated_at` field is gated by a content-equality
+check so a scheduled re-run of the sync workflow with no upstream
+changes produces zero diff).
 
-The signing seed must be available as EDDSA_SIGNING_SEED_HEX in the
-environment (64 hex chars = 32 raw bytes). The script looks up which
-publishers/ entry that seed matches by deriving the public key and
-comparing against every publishers/*.json; that becomes the manifest's
-signed_by value. Mismatched seed (no matching publisher file) is a hard
-error.
+Integrity model: each version's manifest.payload_sha256 is the SHA-256
+hex of payload.zip. End users verify the payload they download matches
+the manifest's hash. There is no Ed25519 signature or trust list -- the
+registry is a curated mirror; trust is administrative ("the repo owner
+chose to mirror this") rather than cryptographic.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
-import os
 import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-
-from nacl.signing import SigningKey
 
 
 REQUIRED_TEMPLATE_FIELDS = (
@@ -48,42 +44,15 @@ REQUIRED_TEMPLATE_FIELDS = (
 )
 
 # Fields the workflow computes; if a template carries them they get overwritten.
-COMPUTED_FIELDS = ("payload_sha256", "payload_size", "signed_by")
+COMPUTED_FIELDS = ("payload_sha256", "payload_size")
 
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
-def load_signing_key() -> tuple[SigningKey, str]:
-    """Decode EDDSA_SIGNING_SEED_HEX -> SigningKey + the matching key_id."""
-    seed_hex = os.environ.get("EDDSA_SIGNING_SEED_HEX", "").strip()
-    if len(seed_hex) != 64:
-        raise SystemExit(
-            "EDDSA_SIGNING_SEED_HEX must be 64 hex characters (32-byte seed)."
-        )
-    seed = bytes.fromhex(seed_hex)
-    sk = SigningKey(seed)
-    pub_b64 = (
-        __import__("base64").b64encode(bytes(sk.verify_key)).decode("ascii")
-    )
-
-    publishers_dir = repo_root() / "publishers"
-    for entry in sorted(publishers_dir.glob("*.json")):
-        with entry.open("r", encoding="utf-8") as f:
-            doc = json.load(f)
-        if doc.get("ed25519_pub") == pub_b64:
-            return sk, doc["key_id"]
-
-    raise SystemExit(
-        "EDDSA_SIGNING_SEED_HEX does not match any publishers/*.json "
-        "(derived public key: " + pub_b64 + "). Commit the matching "
-        "publisher file before publishing."
-    )
-
-
-def process_incoming(sk: SigningKey, key_id: str) -> list[Path]:
-    """Sign + place every incoming/<uuid>/<version>/. Returns processed dirs."""
+def process_incoming() -> list[Path]:
+    """Place every incoming/<uuid>/<version>/. Returns processed dirs."""
     processed: list[Path] = []
     incoming = repo_root() / "incoming"
     if not incoming.exists():
@@ -125,12 +94,8 @@ def process_incoming(sk: SigningKey, key_id: str) -> list[Path]:
                 manifest.pop(field, None)
             manifest["payload_sha256"] = digest.hex()
             manifest["payload_size"] = len(payload_bytes)
-            manifest["signed_by"] = key_id
             manifest.setdefault("schema", 1)
             manifest.setdefault("dependencies", [])
-
-            signature = sk.sign(digest).signature  # 64 raw bytes
-            assert len(signature) == 64
 
             dest = (
                 repo_root()
@@ -145,7 +110,6 @@ def process_incoming(sk: SigningKey, key_id: str) -> list[Path]:
                 json.dump(manifest, f, indent=2, sort_keys=True)
                 f.write("\n")
             (dest / "payload.zip").write_bytes(payload_bytes)
-            (dest / "signature.bin").write_bytes(signature)
 
             # Refresh latest-pointer.
             latest_path = (
@@ -156,7 +120,7 @@ def process_incoming(sk: SigningKey, key_id: str) -> list[Path]:
                 f.write("\n")
 
             processed.append(version_dir)
-            print(f"published {uuid_dir.name}/{version_dir.name} signed_by={key_id}")
+            print(f"published {uuid_dir.name}/{version_dir.name}")
 
     for version_dir in processed:
         shutil.rmtree(version_dir)
@@ -209,9 +173,7 @@ def _write_if_changed(path: Path, new_doc: dict, drift_keys: tuple[str, ...] = (
 
 
 def regenerate_index() -> bool:
-    """Rebuild v1/index.json from every v1/modules/<uuid>/versions/*/.
-    Returns True if the file was written, False if the content was
-    byte-equivalent (modulo `generated_at`)."""
+    """Rebuild v1/index.json from every v1/modules/<uuid>/versions/*/."""
     modules: list[dict] = []
     modules_dir = repo_root() / "v1" / "modules"
     if modules_dir.exists():
@@ -250,22 +212,6 @@ def regenerate_index() -> bool:
     )
 
 
-def regenerate_trust() -> bool:
-    """Build v1/trust.json from every publishers/*.json. Returns True if
-    the file was written."""
-    keys: list[dict] = []
-    pubs = repo_root() / "publishers"
-    if pubs.exists():
-        for entry in sorted(pubs.glob("*.json")):
-            with entry.open("r", encoding="utf-8") as f:
-                doc = json.load(f)
-            keys.append(
-                {"key_id": doc["key_id"], "ed25519_pub": doc["ed25519_pub"]}
-            )
-
-    return _write_if_changed(repo_root() / "v1" / "trust.json", {"keys": keys})
-
-
 def main() -> None:
     incoming = repo_root() / "incoming"
     has_incoming = (
@@ -278,13 +224,11 @@ def main() -> None:
     )
 
     if has_incoming:
-        sk, key_id = load_signing_key()
-        process_incoming(sk, key_id)
+        process_incoming()
     else:
-        print("no incoming/ work; refreshing index + trust only")
+        print("no incoming/ work; refreshing index only")
 
     regenerate_index()
-    regenerate_trust()
     print("publish complete")
 
 

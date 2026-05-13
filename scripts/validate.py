@@ -1,34 +1,31 @@
 #!/usr/bin/env python3
 """
 Validate every v1/modules/<uuid>/versions/<version>/ entry:
-  - manifest.json carries every required field and the types match the
-    C# host's ModuleManifest binding;
-  - manifest.uuid == directory name; manifest.version == directory name;
-  - payload.zip hashes to manifest.payload_sha256;
-  - signature.bin is exactly 64 bytes and validates against the
-    publisher named in manifest.signed_by, using the public key from
-    publishers/<key_id>.json.
-
-Also validates that v1/modules/<uuid>/manifest.json (the "latest"
-pointer) equals one of the per-version manifests, and that
-v1/index.json + v1/trust.json are byte-coherent with publishers/ and
-the per-version manifests.
+  - manifest.json carries every required field and types match the
+    host's Manifest binding,
+  - manifest.uuid == directory name; manifest.version == directory name,
+  - payload.zip hashes to manifest.payload_sha256,
+  - v1/modules/<uuid>/manifest.json (the "latest" pointer) equals one
+    of the per-version manifests,
+  - v1/index.json is byte-coherent with the per-version manifests.
 
 Runs from .github/workflows/validate.yml on every push + pull_request.
 Exits non-zero on any failure with a clear pointer to the offending
 file / field. Touches no files.
+
+No Ed25519 signature verification: this registry is a curated mirror,
+so trust is administrative ("the repo owner chose to mirror this")
+rather than cryptographic. SHA-256 catches transport corruption + lets
+the host refuse a payload whose bytes do not match what was signed off
+on at publish time.
 """
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
 import sys
 from pathlib import Path
-
-from nacl.signing import VerifyKey
-from nacl.exceptions import BadSignatureError
 
 
 REQUIRED_MANIFEST_FIELDS = {
@@ -44,7 +41,6 @@ REQUIRED_MANIFEST_FIELDS = {
     "entry_assembly": str,
     "entry_type": str,
     "payload_sha256": str,
-    "signed_by": str,
 }
 
 
@@ -55,30 +51,6 @@ def repo_root() -> Path:
 def fail(msg: str) -> None:
     print(f"::error::{msg}", file=sys.stderr)
     sys.exit(1)
-
-
-def load_publishers() -> dict[str, bytes]:
-    """key_id (case-insensitive) -> 32-byte raw Ed25519 public key."""
-    out: dict[str, bytes] = {}
-    pubs = repo_root() / "publishers"
-    if not pubs.exists():
-        return out
-    for entry in sorted(pubs.glob("*.json")):
-        with entry.open("r", encoding="utf-8") as f:
-            doc = json.load(f)
-        if "key_id" not in doc or "ed25519_pub" not in doc:
-            fail(f"{entry}: missing key_id or ed25519_pub")
-        try:
-            raw = base64.b64decode(doc["ed25519_pub"], validate=True)
-        except Exception as e:
-            fail(f"{entry}: ed25519_pub is not valid base64 ({e})")
-        if len(raw) != 32:
-            fail(
-                f"{entry}: ed25519_pub decodes to {len(raw)} bytes; "
-                "Ed25519 public keys are 32 bytes."
-            )
-        out[doc["key_id"].lower()] = raw
-    return out
 
 
 def validate_manifest(path: Path, expected_uuid: str, expected_version: str) -> dict:
@@ -122,14 +94,11 @@ def validate_manifest(path: Path, expected_uuid: str, expected_version: str) -> 
     return m
 
 
-def validate_version_dir(
-    version_dir: Path, uuid: str, publishers: dict[str, bytes]
-) -> dict:
+def validate_version_dir(version_dir: Path, uuid: str) -> dict:
     manifest_path = version_dir / "manifest.json"
     payload_path = version_dir / "payload.zip"
-    signature_path = version_dir / "signature.bin"
 
-    for p in (manifest_path, payload_path, signature_path):
+    for p in (manifest_path, payload_path):
         if not p.exists():
             fail(f"{version_dir}: missing required file {p.name}")
 
@@ -146,30 +115,6 @@ def validate_version_dir(
         fail(
             f"{payload_path}: payload_size mismatch "
             f"(actual {len(payload_bytes)} vs manifest {manifest['payload_size']})"
-        )
-
-    sig = signature_path.read_bytes()
-    if len(sig) != 64:
-        fail(
-            f"{signature_path}: signature must be exactly 64 bytes "
-            f"(got {len(sig)})"
-        )
-
-    key_id = manifest["signed_by"].lower()
-    if key_id not in publishers:
-        fail(
-            f"{manifest_path}: signed_by '{manifest['signed_by']}' has no "
-            f"matching publishers/<key_id>.json entry."
-        )
-
-    vk = VerifyKey(publishers[key_id])
-    digest = bytes.fromhex(manifest["payload_sha256"])
-    try:
-        vk.verify(digest, sig)
-    except BadSignatureError:
-        fail(
-            f"{signature_path}: Ed25519 signature does not verify against "
-            f"publisher '{manifest['signed_by']}'."
         )
 
     return manifest
@@ -224,35 +169,18 @@ def validate_index(modules_dir: Path, expected_modules: list[dict]) -> None:
                 )
 
 
-def validate_trust(publishers: dict[str, bytes]) -> None:
-    trust_path = repo_root() / "v1" / "trust.json"
-    if not trust_path.exists():
-        fail(f"{trust_path}: missing")
-    with trust_path.open("r", encoding="utf-8") as f:
-        trust = json.load(f)
-    actual = {(k["key_id"].lower(), base64.b64decode(k["ed25519_pub"])) for k in trust.get("keys", [])}
-    expected = {(kid, raw) for kid, raw in publishers.items()}
-    if actual != expected:
-        fail(
-            f"{trust_path}: drifted from publishers/. "
-            f"Run scripts/publish.py to refresh."
-        )
-
-
 def main() -> int:
     root = repo_root()
-    publishers = load_publishers()
 
-    # Forbid incoming/ from being checked in long-term.  An author can push
-    # a payload + template, the workflow signs and removes the directory in
-    # the same run.  A trailing incoming/ file after the workflow ran is a
-    # red flag.
+    # Forbid incoming/ from carrying unprocessed files after a publish run. An
+    # author drops files there, the publish workflow signs and removes the
+    # directory in the same run; a trailing file is a red flag.
     incoming = root / "incoming"
     if incoming.exists():
         leftover = [
             p
             for p in incoming.rglob("*")
-            if p.is_file() and p.name not in ("README.md", ".gitkeep")
+            if p.is_file() and p.name not in (".gitkeep",)
         ]
         if leftover:
             fail(
@@ -274,9 +202,7 @@ def main() -> int:
             for version_dir in sorted(
                 p for p in versions_dir.iterdir() if p.is_dir()
             ):
-                manifest = validate_version_dir(
-                    version_dir, uuid_dir.name, publishers
-                )
+                manifest = validate_version_dir(version_dir, uuid_dir.name)
                 per_version[version_dir.name] = manifest
             if not per_version:
                 fail(f"{uuid_dir}: no versions/ subdirectories")
@@ -284,10 +210,10 @@ def main() -> int:
             validate_latest_pointer(uuid_dir, per_version)
 
             # The index's per-module entry comes from the latest version.
-            latest_version = max(per_version.keys(), key=lambda v: (
+            latest = max(per_version.keys(), key=lambda v: (
                 tuple(int(p) for p in v.split(".")) if all(p.isdigit() for p in v.split(".")) else (v,)
             ))
-            m = per_version[latest_version]
+            m = per_version[latest]
             expected_index_entries.append(
                 {
                     "uuid": m["uuid"],
@@ -299,7 +225,6 @@ def main() -> int:
             )
 
     validate_index(modules_dir, expected_index_entries)
-    validate_trust(publishers)
 
     print("validate ok")
     return 0

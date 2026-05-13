@@ -431,16 +431,29 @@ def _stage_module_inner(args: argparse.Namespace, workdir: Path) -> Path:
         json.dump(bridge, f, indent=2, sort_keys=True)
         f.write("\n")
 
-    # Zip the assemblies/ tree into payload.zip.
+    # Zip the assemblies/ tree into payload.zip. Force a constant mtime + sorted
+    # entry order + level-6 deflate so re-running the importer on the same
+    # upstream bytes produces the same zip bytes. Without this, the daily
+    # sync workflow would churn a bot commit every run even when upstream
+    # hasn't moved -- zlib's output is byte-stable but ZIP local headers
+    # carry an mtime that defaults to "now."
     payload = workdir / "payload.zip"
-    with zipfile.ZipFile(payload, "w", zipfile.ZIP_DEFLATED) as zf:
+    _EPOCH = (2020, 1, 1, 0, 0, 0)  # any fixed past timestamp works; pinning silences entropy.
+    with zipfile.ZipFile(payload, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
         for path in sorted(asm_root.rglob("*")):
-            if path.is_file():
-                zf.write(path, path.relative_to(workdir))
+            if not path.is_file():
+                continue
+            arcname = str(path.relative_to(workdir)).replace("\\", "/")
+            info = zipfile.ZipInfo(filename=arcname, date_time=_EPOCH)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            # external_attr: 0o644 file mode shifted into Unix-format perms.
+            info.external_attr = (0o644 & 0xFFFF) << 16
+            with path.open("rb") as f:
+                zf.writestr(info, f.read())
 
     shutil.copy2(payload, incoming / "payload.zip")
 
-    # Manifest template -- publish workflow fills in payload_sha256 / size / signed_by.
+    # Manifest template -- publish workflow fills in payload_sha256 + payload_size.
     manifest = {
         "schema":           1,
         "uuid":             module_uuid,
