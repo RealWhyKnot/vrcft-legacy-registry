@@ -74,6 +74,15 @@ OPTIONAL_HOST_ASSEMBLIES = (
     "Microsoft.Extensions.Logging.Abstractions.dll",
 )
 
+# Every DLL under vrcft-registry/lib/vrcft-sdk/ is copied into each
+# imported module's assemblies/ directory. Upstream VRCFT modules extend
+# VRCFaceTracking.Core.Library.ExtTrackingModule -- without VRCFaceTracking.Core
+# (and its transitive deps) on the load path, the module's class
+# hierarchy fails to resolve and the reflecting adapter throws on type
+# lookup. See lib/vrcft-sdk/README.md for what's in there and how to
+# rebuild it.
+VRCFT_SDK_DIR_NAME = "vrcft-sdk"
+
 # Upstream base class the auto-detector looks for. VRCFT v2 SDK convention.
 UPSTREAM_BASE_TYPE_NAME = "ExtTrackingModule"
 
@@ -132,33 +141,50 @@ def fetch_source(source: str, workdir: Path) -> Path:
     Returns the directory holding the extracted/copied tree.
     """
     if source.startswith(("http://", "https://")):
-        return _download_and_extract(source, workdir)
+        return _download(source, workdir)
 
     sp = Path(source).expanduser().resolve()
     if not sp.exists():
         fail(f"--source path does not exist: {sp}")
 
-    if sp.is_file():
-        if sp.suffix.lower() != ".zip":
-            fail(f"--source must be a zip if it's a file; got {sp.suffix}")
-        target = workdir / "extracted"
-        target.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(sp) as zf:
-            zf.extractall(target)
-        return target
+    if sp.is_dir():
+        return sp
 
-    return sp
-
-
-def _download_and_extract(url: str, workdir: Path) -> Path:
-    print(f"downloading {url}")
-    req = urllib.request.Request(url, headers={"User-Agent": "vrcft-registry-importer/1.0"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        body = resp.read()
     target = workdir / "extracted"
     target.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(io.BytesIO(body)) as zf:
-        zf.extractall(target)
+    suffix = sp.suffix.lower()
+    if suffix == ".zip":
+        with zipfile.ZipFile(sp) as zf:
+            zf.extractall(target)
+    elif suffix == ".dll":
+        shutil.copy2(sp, target / sp.name)
+    else:
+        fail(f"--source must be a zip, dll, or directory; got {sp.suffix}")
+    return target
+
+
+def _download(url: str, workdir: Path) -> Path:
+    """Download a release asset (zip or bare DLL) into a working directory."""
+    print(f"downloading {url}")
+    req = urllib.request.Request(url, headers={"User-Agent": "vrcft-registry-importer/1.0"})
+    with urllib.request.urlopen(req, timeout=120) as resp:
+        body = resp.read()
+
+    target = workdir / "extracted"
+    target.mkdir(parents=True, exist_ok=True)
+
+    # Sniff: zips start with PK; DLLs start with MZ.
+    if body[:2] == b"PK":
+        with zipfile.ZipFile(io.BytesIO(body)) as zf:
+            zf.extractall(target)
+    elif body[:2] == b"MZ":
+        # Bare DLL. Name it from the URL's last path component.
+        name = url.rsplit("/", 1)[-1].split("?", 1)[0] or "upstream.dll"
+        if not name.lower().endswith(".dll"):
+            name += ".dll"
+        (target / name).write_bytes(body)
+    else:
+        fail(f"Downloaded asset isn't a zip or DLL (first 2 bytes: {body[:2]!r}).")
     return target
 
 
@@ -186,10 +212,14 @@ def pick_upstream_dll(dlls: list[Path], hint: str | None) -> Path:
     excluded = re.compile(
         r"^(System\.|Microsoft\.|VRCFaceTracking\.Core|OpenVRPair\.FaceTracking\.|"
         r"netstandard|mscorlib|WindowsBase|PresentationCore|UnityEngine|"
-        r"Newtonsoft\.Json|NSec\.|libsodium)",
+        r"Newtonsoft\.Json|NSec\.|libsodium|fti_osc)",
         re.IGNORECASE,
     )
-    candidates = [d for d in dlls if not excluded.match(d.name)]
+    # macOS sometimes ships resource-fork sidecars (`._Foo.dll`) inside zips
+    # created on macOS. Those aren't real PE images; skip them.
+    candidates = [d for d in dlls
+                  if not excluded.match(d.name)
+                  and not d.name.startswith("._")]
     if not candidates:
         fail("Could not pick an upstream DLL automatically. "
              "Pass --upstream-assembly with the filename.")
@@ -334,6 +364,21 @@ def _stage_module_inner(args: argparse.Namespace, workdir: Path) -> Path:
         src = host_dir / asm
         if src.exists():
             shutil.copy2(src, asm_root / asm)
+
+    # Bundle the vendored VRCFaceTracking SDK + transitive deps so the
+    # upstream module's class hierarchy resolves at load time. Don't
+    # overwrite a copy the upstream zip already shipped (the upstream
+    # author may have pinned a specific SDK version on purpose).
+    sdk_dir = repo_root() / "lib" / VRCFT_SDK_DIR_NAME
+    if sdk_dir.is_dir():
+        for sdk_dll in sdk_dir.glob("*.dll"):
+            target = asm_root / sdk_dll.name
+            if target.exists():
+                continue
+            shutil.copy2(sdk_dll, target)
+    else:
+        fail(f"lib/{VRCFT_SDK_DIR_NAME}/ not found. "
+             "See lib/vrcft-sdk/README.md for how to populate it.")
 
     # Emit bridge.json alongside the VrcftCompat DLL.
     bridge = {
