@@ -42,7 +42,7 @@ def repo_root() -> Path:
 
 def fetch_upstream() -> list[dict]:
     print(f"GET {UPSTREAM_URL}")
-    req = urllib.request.Request(UPSTREAM_URL, headers={"User-Agent": "vrcft-registry-sync/1.0"})
+    req = urllib.request.Request(UPSTREAM_URL, headers={"User-Agent": "wkvrcft-legacy-registry-sync/1.0"})
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.loads(resp.read())
 

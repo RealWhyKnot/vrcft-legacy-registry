@@ -54,7 +54,7 @@ import zipfile
 from pathlib import Path
 
 
-# UUIDv5 namespace for vrcft-registry module IDs. Arbitrary fixed value; any
+# UUIDv5 namespace for wkvrcft-legacy-registry module IDs. Arbitrary fixed value; any
 # import that resolves the same (upstream_assembly, upstream_type) pair gets
 # the same module UUID, so version bumps stay under one identity.
 MODULE_NS = _uuid.UUID("0c5f8a06-b6f0-4a02-b3c2-2f4b3df8a915")
@@ -74,7 +74,7 @@ OPTIONAL_HOST_ASSEMBLIES = (
     "Microsoft.Extensions.Logging.Abstractions.dll",
 )
 
-# Every DLL under vrcft-registry/lib/vrcft-sdk/ is copied into each
+# Every DLL under wkvrcft-legacy-registry/lib/vrcft-sdk/ is copied into each
 # imported module's assemblies/ directory. Upstream VRCFT modules extend
 # VRCFaceTracking.Core.Library.ExtTrackingModule -- without VRCFaceTracking.Core
 # (and its transitive deps) on the load path, the module's class
@@ -166,7 +166,7 @@ def fetch_source(source: str, workdir: Path) -> Path:
 def _download(url: str, workdir: Path) -> Path:
     """Download a release asset (zip or bare DLL) into a working directory."""
     print(f"downloading {url}")
-    req = urllib.request.Request(url, headers={"User-Agent": "vrcft-registry-importer/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "wkvrcft-legacy-registry-importer/1.0"})
     with urllib.request.urlopen(req, timeout=120) as resp:
         body = resp.read()
 

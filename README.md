@@ -1,4 +1,4 @@
-# vrcft-legacy-registry
+# wkvrcft-legacy-registry
 
 Mirror of every module the upstream [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) app shows in its Modules tab. Served at `https://legacy-registry.whyknot.dev` so the OpenVR-Pair face-tracking host can fetch and load the same modules without re-authoring any of them.
 

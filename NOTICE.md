@@ -1,6 +1,6 @@
 # NOTICE
 
-vrcft-registry redistributes a small set of upstream MIT-licensed assemblies under `lib/vrcft-sdk/`. The license texts and original copyright notices for those assemblies are reproduced below.
+wkvrcft-legacy-registry redistributes a small set of upstream MIT-licensed assemblies under `lib/vrcft-sdk/`. The license texts and original copyright notices for those assemblies are reproduced below.
 
 The registry itself (the scripts, workflows, configuration, and original prose under this repository's root) is licensed under GPL-3.0; see `LICENSE`.
 

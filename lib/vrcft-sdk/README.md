@@ -22,7 +22,7 @@ git clone --depth 1 --branch <new-tag> https://github.com/benaclejames/VRCFaceTr
 cd /tmp/vrcft-source
 dotnet publish VRCFaceTracking.Core/VRCFaceTracking.Core.csproj -c Release --no-self-contained -o /tmp/vrcft-publish
 cp /tmp/vrcft-publish/{VRCFaceTracking.Core.dll,Newtonsoft.Json.dll,Microsoft.Extensions.Logging.Abstractions.dll,fti_osc.dll} \
-   D:/Github/OpenVR/vrcft-registry/lib/vrcft-sdk/
+   D:/Github/OpenVR/wkvrcft-legacy-registry/lib/vrcft-sdk/
 ```
 
 Bump the upstream tag pin in this file when you do.
