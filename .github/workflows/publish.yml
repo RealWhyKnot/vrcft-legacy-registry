@@ -51,6 +51,15 @@ jobs:
           EDDSA_SIGNING_SEED_HEX: ${{ secrets.EDDSA_SIGNING_SEED_HEX }}
         run: python scripts/publish.py
 
+      - name: Validate post-publish state
+        # validate.yml runs on every push, but the trust/index regeneration
+        # this job is about to commit will only show up in a follow-up bot
+        # commit -- and GITHUB_TOKEN commits don't trigger workflows. Run
+        # validate.py inline so the *outcome* of this publish is verified
+        # before we push the bot commit; if anything's drifted, the push
+        # never happens and the workflow fails visibly.
+        run: python scripts/validate.py
+
       - name: Detect changes
         id: changes
         run: |
