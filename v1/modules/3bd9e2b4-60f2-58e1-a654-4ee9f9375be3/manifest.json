@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "cympleFaceTracking",
-  "payload_sha256": "8b5dfd70e31b34f7b20ae7306ff0ffecfbae09c837bf8c5982ba31845b3ed847",
-  "payload_size": 508170,
+  "payload_sha256": "b8673fc363da14956003f4b8c04da8743406a9292fac5aca4bd38e51c2d4765f",
+  "payload_size": 508336,
   "platforms": [
     "windows-x64"
   ],

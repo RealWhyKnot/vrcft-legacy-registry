@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "(OpenXR) ALXR Local Module",
-  "payload_sha256": "f39d1581d60d121d6d76092fac6b2a231c29b7030a1d3c6cb8615f6b8becb8be",
-  "payload_size": 1442333,
+  "payload_sha256": "f16547c183dc30d3d6192b0dd5ae0103ad8a4b6b801b2cf791b75a6193b67ea0",
+  "payload_size": 1442502,
   "platforms": [
     "windows-x64"
   ],

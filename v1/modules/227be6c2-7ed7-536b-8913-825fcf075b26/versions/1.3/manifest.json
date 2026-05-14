@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "MeowFaceTrackingModule",
-  "payload_sha256": "185cf8008271b0de0cd27b2ba7429d53d10d43ce03bab6f29fad3ee686ec4450",
-  "payload_size": 525415,
+  "payload_sha256": "d2a3e09eaba3f0434b6a4aeafa8c14981c61ddc047446828d7973dd2d75153a6",
+  "payload_size": 525581,
   "platforms": [
     "windows-x64"
   ],

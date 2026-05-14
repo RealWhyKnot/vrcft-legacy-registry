@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "iFacialMocap Tracking Module",
-  "payload_sha256": "33abff6f6b752a9d4b3f40a6d774e59620b493dea0fa99fed243b1739afcccf1",
-  "payload_size": 452716,
+  "payload_sha256": "e87d106e3248a53e58c2c341970d1160558ab36448a006ffb5ef74d16f112822",
+  "payload_size": 452882,
   "platforms": [
     "windows-x64"
   ],

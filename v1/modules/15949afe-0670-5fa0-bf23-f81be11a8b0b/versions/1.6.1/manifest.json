@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "Pico4SAFTExtTrackingModule",
-  "payload_sha256": "a6ef7c897c13dea8974bb403b6b189b44385df5368540930438479d9652371e0",
-  "payload_size": 471178,
+  "payload_sha256": "ad4edb687387153d0386b61ba195337bd170617ed1f728b4f52722063660251b",
+  "payload_size": 471345,
   "platforms": [
     "windows-x64"
   ],

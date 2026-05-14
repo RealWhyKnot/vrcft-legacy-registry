@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "PlayStation VR2 Module",
-  "payload_sha256": "eb951cad3e52759bb4d483aed5afb02f5bc678c6f21bf726fb21e26bba7848d0",
-  "payload_size": 560971,
+  "payload_sha256": "a3bfa764f5579896badb7a5d6299372a6fa567f1af54e18c012653251fe40bdc",
+  "payload_size": 561137,
   "platforms": [
     "windows-x64"
   ],

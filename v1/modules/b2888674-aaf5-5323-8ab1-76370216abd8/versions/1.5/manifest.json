@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "SRanipalTrackingModule",
-  "payload_sha256": "7a8be9494fad2bba5d3fa4376dff01f909679337f6b3481157bcedf421dbb521",
-  "payload_size": 982814,
+  "payload_sha256": "1e2410d3983570aa8c366c64840fc580c51a214408856e33a8252bb98988a5b8",
+  "payload_size": 982981,
   "platforms": [
     "windows-x64"
   ],

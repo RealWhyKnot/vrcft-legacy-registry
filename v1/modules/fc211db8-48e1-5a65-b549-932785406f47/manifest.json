@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "ETVR Tracking Module",
-  "payload_sha256": "a6bfbfa0a2f30d36ccdc286094b4cb1929cd31f407d9ae43702a4cbf9c6634d7",
-  "payload_size": 523861,
+  "payload_sha256": "4b30402d623272e8db58044e5895ce65ea9255fc4733544e7482d5fd9f309e53",
+  "payload_size": 524028,
   "platforms": [
     "windows-x64"
   ],

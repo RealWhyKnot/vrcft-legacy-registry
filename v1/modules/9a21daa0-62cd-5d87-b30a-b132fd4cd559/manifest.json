@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "VRCFTVarjoModule",
-  "payload_sha256": "6c55af9bf0eba09918f1be713e1bc7c932be0f5d2b2ea23d554e072520fc2e68",
-  "payload_size": 799922,
+  "payload_sha256": "906ccb75833e39843e214e6e4f8f13fc148ee3bb6d0135826a519e50142fcd28",
+  "payload_size": 800087,
   "platforms": [
     "windows-x64"
   ],

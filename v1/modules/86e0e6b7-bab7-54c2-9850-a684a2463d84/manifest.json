@@ -8,8 +8,8 @@
   "entry_type": "OpenVRPair.FaceTracking.VrcftCompat.ReflectingExtTrackingModuleAdapter",
   "min_host_version": "1.0",
   "name": "LiveLink",
-  "payload_sha256": "d7d42f96fdc5dff8fa369db4c5286472b3a37b7949868bb75d6aebe4abc4dc2a",
-  "payload_size": 876149,
+  "payload_sha256": "da6dc3e0662fb1ec595011913254cfa52da879e0996826bf3b228901b3dc2caa",
+  "payload_size": 876313,
   "platforms": [
     "windows-x64"
   ],
