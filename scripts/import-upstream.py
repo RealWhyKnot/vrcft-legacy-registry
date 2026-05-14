@@ -30,9 +30,11 @@ If --uuid is omitted or set to "auto", a deterministic UUIDv5 is generated
 from the upstream-assembly name + upstream-type name, so a re-import of
 the same module under a new version reuses the same UUID.
 
-If --host-build-dir is omitted, the script looks for the OpenVR-Pair
-monorepo's host build output at the default sibling location:
-    ../WKOpenVR/build/facetracking-host-publish/
+If --host-build-dir is omitted, the script uses the vendored host
+assemblies at lib/host-sdk/ next to lib/vrcft-sdk/. Pass --host-build-dir
+to point at a live WKOpenVR host build (e.g.
+../WKOpenVR/build/facetracking-host-publish/) when iterating on the
+adapter locally.
 
 The output is staged under incoming/<uuid>/<version>/. Push to main and
 the publish workflow signs + places + indexes it.
@@ -318,10 +320,10 @@ def resolve_host_build_dir(arg: Path | None) -> Path:
             fail(f"--host-build-dir does not exist: {d}")
         return d
 
-    default = repo_root().parent / "WKOpenVR" / "build" / "facetracking-host-publish"
+    default = repo_root() / "lib" / "host-sdk"
     if not default.is_dir():
-        fail(f"Default host build dir not found at {default}. "
-             "Build the host (cmake --build ... or build.ps1) or pass --host-build-dir.")
+        fail(f"Vendored host SDK not found at {default}. "
+             "See lib/host-sdk/README.md for how to populate it, or pass --host-build-dir.")
     return default
 
 
